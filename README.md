@@ -1,1 +1,23 @@
-# nvh-rag-system
+## Problem Statement
+Domain: Automotive NVH (Noise, Vibration & Harshness) — Design & Development Engineering
+
+Background:
+
+In automotive NVH development, engineers are responsible for ensuring that vehicles meet a complex web of noise-related regulatory requirements before they can be homologated and sold in target markets. These requirements are codified across multiple international and national standards — including UNECE Regulation 51 (exterior noise from motor vehicles), ISO 362 (measurement of sound emitted by accelerating road vehicles), IS 3028 Parts 1 & 2 (Indian standards for vehicle noise), horn noise regulations, and AVAS (Acoustic Vehicle Alerting System) requirements for electric and hybrid vehicles. Each of these documents runs to dozens or hundreds of pages and is dense with regulatory tables, test procedure descriptions, measurement graphs, and cross-references to other standards.
+
+The Problem:
+
+During vehicle development, NVH engineers routinely need to answer highly specific, configuration-dependent questions: Which exterior noise limit applies to this vehicle given its kerb mass, engine type, and category? What are the exact test conditions for a hybrid vehicle operating in electric-only mode? Does this powertrain configuration trigger AVAS requirements, and if so, what frequency and SPL targets apply? What changed between the previous and current revision of ECE R51?
+Today, answering these questions requires a combination of manual document reading, Ctrl+F keyword searches that fail on scanned content or figures, consulting senior colleagues who carry institutional knowledge, and maintaining informal Excel summaries that quickly go out of date when standards are revised. This process is slow, error-prone, and heavily dependent on individual expertise. A junior engineer or a team working on a new market entry may spend hours locating a single applicable limit value — time that should be spent on engineering decisions, not document archaeology.
+
+Why This Problem Is Uniquely Hard:
+
+NVH compliance documents are not amenable to conventional search for several reasons. First, the applicability of a limit is almost never a single sentence — it is determined by a combination of vehicle category, gross vehicle weight, engine displacement, fuel type, and transmission type, typically expressed across multi-column regulatory tables. A keyword search for "noise limit" returns dozens of irrelevant rows before reaching the applicable one. Second, test conditions for modern powertrains (particularly hybrids and EVs) are described procedurally across multiple non-contiguous pages, with conditions that depend on figures and graphs that traditional search engines cannot interpret. Third, AVAS requirements are relatively new and exist as amendments or annexures embedded within larger regulations, making them easy to miss in a linear read. Finally, standard revisions introduce delta changes that are not explicitly summarised — engineers must compare versions manually to understand what has changed.
+
+Why RAG Is the Right Approach:
+
+A retrieval-augmented generation approach is well-suited to this problem for three reasons. First, RAG operates over the actual regulatory text without requiring model fine-tuning — the source documents remain authoritative and can be updated when standards are revised, without retraining. Second, multimodal RAG can process the full document including tables (which encode limit applicability logic) and figures (which define test speed profiles and measurement conditions) — modalities that keyword search and traditional document Q&A systems ignore entirely. Third, RAG produces grounded answers with source references (document name, page number, chunk type), which is essential in a compliance context where an engineer must be able to cite the exact regulatory clause to a homologation authority. Fine-tuning a model on regulatory text would produce fluent answers but no traceability — unacceptable in an engineering sign-off workflow.
+
+Expected Outcomes:
+
+A successful system will enable an NVH engineer to ask natural language questions such as: "What is the applicable exterior noise limit for an M1 category petrol vehicle with automatic transmission under ECE R51.04?", "What are the AVAS minimum sound requirements for a BEV below 20 km/h?", or "What changed in the test procedure between ECE R51.03 and R51.04?" — and receive accurate, cited answers drawn directly from the ingested regulatory documents, including interpretation of relevant tables and figures. This reduces compliance query resolution time from hours to seconds and makes regulatory knowledge accessible to engineers at all experience levels.

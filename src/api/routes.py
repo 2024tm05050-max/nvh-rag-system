@@ -10,4 +10,3 @@ router = APIRouter()
 @router.get("/health")
 def health_check():
     return {"status": "ok", "message": "NVH RAG system is running"}
-```

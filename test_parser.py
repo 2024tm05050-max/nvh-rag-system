@@ -6,7 +6,7 @@ Run: python test_parser.py
 from src.ingestion.parser import parse_pdf
 
 # Replace with your actual PDF filename
-PDF_PATH = "sample_documents/your_nvh_document.pdf"
+PDF_PATH = "sample_documents/is.3028.1998.pdf"
 
 chunks = parse_pdf(PDF_PATH)
 

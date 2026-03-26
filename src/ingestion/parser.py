@@ -7,31 +7,14 @@ import os
 from pathlib import Path
 from dataclasses import dataclass
 from typing import List
-from docling.document_converter import DocumentConverter
+from docling.document_converter import DocumentConverter, PdfFormatOption
 from docling.datamodel.pipeline_options import PdfPipelineOptions
 from docling.datamodel.base_models import InputFormat
-from docling.document_converter import PdfFormatOption
-
-
-@dataclass
-class ParsedChunk:
-    """Represents a single extracted chunk from a PDF"""
-    content: str        # text content
-    chunk_type: str     # "text", "table", or "image"
-    page_number: int    # page where this chunk was found
-    source_file: str    # original PDF filename
-    chunk_index: int    # position in document
-
+from docling.pipeline.standard_pdf_pipeline import StandardPdfPipeline
 
 def parse_pdf(pdf_path: str) -> List[ParsedChunk]:
     """
     Parse a PDF file and extract text, tables, and images as chunks.
-    
-    Args:
-        pdf_path: Full path to the PDF file
-        
-    Returns:
-        List of ParsedChunk objects
     """
     pdf_path = Path(pdf_path)
     
@@ -40,15 +23,18 @@ def parse_pdf(pdf_path: str) -> List[ParsedChunk]:
     
     print(f"Parsing PDF: {pdf_path.name}")
     
-    # Configure Docling pipeline with image extraction enabled
-    pipeline_options = PdfPipelineOptions()
+    # Download models to local cache if not present
+    artifacts_path = StandardPdfPipeline.download_models_hf(force=False)
+    
+    # Configure pipeline
+    pipeline_options = PdfPipelineOptions(artifacts_path=artifacts_path)
     pipeline_options.do_ocr = False
     pipeline_options.do_table_structure = True
     pipeline_options.images_scale = 2.0
-    pipeline_options.generate_page_images = False   # don't render full pages
-    pipeline_options.generate_picture_images = True  # only extract figures
+    pipeline_options.generate_page_images = False
+    pipeline_options.generate_picture_images = True
     
-    # Create converter with options
+    # Create converter
     converter = DocumentConverter(
         format_options={
             InputFormat.PDF: PdfFormatOption(

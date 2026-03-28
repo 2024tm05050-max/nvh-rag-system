@@ -25,3 +25,5 @@ pydantic==2.7.4
 python-dotenv==1.0.1
 pillow==10.3.0
 pandas==2.2.2
+
+ragas==0.1.21

@@ -56,27 +56,61 @@ def embed_chunks(chunks: List[ParsedChunk], model: SentenceTransformer) -> np.nd
 
 def save_index(chunks: List[ParsedChunk], embeddings: np.ndarray):
     """
-    Save FAISS index and chunk metadata to disk.
-    
-    Args:
-        chunks: List of ParsedChunk objects
-        embeddings: numpy array of embeddings
+    Save FAISS index — appends to existing index if present.
+    New documents are added without removing previously indexed ones.
     """
     INDEX_PATH.mkdir(parents=True, exist_ok=True)
     
-    # Create FAISS index
-    dimension = embeddings.shape[1]
-    index = faiss.IndexFlatIP(dimension)  # Inner product for cosine similarity
+    index_file = INDEX_PATH / "index.faiss"
+    metadata_file = INDEX_PATH / "metadata.json"
+    
+    # Load existing index if present
+    if index_file.exists() and metadata_file.exists():
+        existing_index = faiss.read_index(str(index_file))
+        with open(metadata_file, "r") as f:
+            existing_metadata = json.load(f)
+        
+        # Check for duplicate document — remove old chunks first
+        new_source = chunks[0].source_file if chunks else None
+        existing_metadata = [
+            m for m in existing_metadata 
+            if m["source_file"] != new_source
+        ]
+        
+        # Rebuild index without old chunks from this document
+        if len(existing_metadata) > 0:
+            kept_indices = [m["index"] for m in existing_metadata]
+            kept_embeddings = np.array([
+                existing_index.reconstruct(int(i)) 
+                for i in range(existing_index.ntotal)
+                if i in set(kept_indices)
+            ], dtype=np.float32)
+            
+            dimension = embeddings.shape[1]
+            index = faiss.IndexFlatIP(dimension)
+            if len(kept_embeddings) > 0:
+                index.add(kept_embeddings)
+            
+            # Re-number metadata indices
+            for i, m in enumerate(existing_metadata):
+                m["index"] = i
+        else:
+            dimension = embeddings.shape[1]
+            index = faiss.IndexFlatIP(dimension)
+    else:
+        dimension = embeddings.shape[1]
+        index = faiss.IndexFlatIP(dimension)
+        existing_metadata = []
+    
+    # Add new chunks
+    start_idx = index.ntotal
     index.add(embeddings.astype(np.float32))
     
-    # Save FAISS index
-    faiss.write_index(index, str(INDEX_PATH / "index.faiss"))
-    
-    # Save chunk metadata as JSON
-    metadata = []
+    # Build new metadata entries
+    new_metadata = []
     for i, chunk in enumerate(chunks):
-        metadata.append({
-            "index": i,
+        new_metadata.append({
+            "index": start_idx + i,
             "content": chunk.content,
             "chunk_type": chunk.chunk_type,
             "page_number": chunk.page_number,
@@ -84,10 +118,16 @@ def save_index(chunks: List[ParsedChunk], embeddings: np.ndarray):
             "chunk_index": chunk.chunk_index
         })
     
-    with open(INDEX_PATH / "metadata.json", "w") as f:
-        json.dump(metadata, f, indent=2)
+    # Save combined index and metadata
+    all_metadata = existing_metadata + new_metadata
+    faiss.write_index(index, str(index_file))
     
-    print(f"Index saved: {index.ntotal} vectors at {INDEX_PATH}")
+    with open(INDEX_PATH / "metadata.json", "w") as f:
+        json.dump(all_metadata, f, indent=2)
+    
+    print(f"Index updated: {index.ntotal} total vectors")
+    print(f"  Added: {len(chunks)} new chunks from {chunks[0].source_file}")
+    print(f"  Total documents: {len(set(m['source_file'] for m in all_metadata))}")
 
 
 def load_index():

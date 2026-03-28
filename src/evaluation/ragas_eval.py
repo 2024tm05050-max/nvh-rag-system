@@ -31,23 +31,23 @@ from src.models.llm import generate_answer
 NVH_TEST_SET = [
     {
         "question": "What is the body weight for vehicles below 3 tonnes in Table 1?",
-        "ground_truth": "For vehicles with gross vehicle weight below 3 tonnes, the body weight is 0.12 tonnes and cab weight is not applicable."
+        "ground_truth": "For vehicles below 3 tonnes gross vehicle weight, body weight is 0.12 tonnes and cab weight is not applicable."
     },
     {
-        "question": "What does IS 3028 specify about noise measurement method?",
-        "ground_truth": "IS 3028 specifies the method of measurement of noise emitted by moving automotive vehicles."
+        "question": "What are the load schedule requirements for vehicles between 3 and 4 tonnes?",
+        "ground_truth": "For vehicles with gross vehicle weight 3 and above but less than 4 tonnes, the body weight is 0.20 tonnes."
     },
     {
-        "question": "What is the purpose of IS 3028?",
-        "ground_truth": "IS 3028 specifies the method for measurement of noise emitted by moving automotive vehicles to assess compliance with noise regulations."
+        "question": "What European directives are listed in the standards reference table?",
+        "ground_truth": "The standards reference table lists 971241EC for permissible sound level of two or three wheel motor vehicles and 70/157/EEC amended by directive 96/20/EC."
     },
     {
-        "question": "What vehicle categories are covered in IS 3028?",
-        "ground_truth": "IS 3028 covers automotive vehicles including passenger cars, trucks, buses and two or three wheeled vehicles."
+        "question": "What is IS 9779 about?",
+        "ground_truth": "IS 9779:1981 is about sound level meters."
     },
     {
-        "question": "What international standards are referenced in IS 3028?",
-        "ground_truth": "IS 3028 references ECE regulations and ISO 362 for measurement of sound emitted by accelerating road vehicles."
+        "question": "What does IS 9211 cover?",
+        "ground_truth": "IS 9211:1979 covers denominations and definitions of weights of road vehicles."
     },
 ]
 

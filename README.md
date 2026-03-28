@@ -260,6 +260,25 @@ Swagger UI with full API documentation.
 
 ## Limitations & Future Work
 
+## Evaluation
+
+RAGAS automated evaluation was run across 5 NVH-specific test 
+questions from IS 3028.
+
+| Metric | Score |
+|---|---|
+| Faithfulness | 1.000 |
+| Answer relevancy | 0.386 |
+| Context precision | 0.606 |
+| Overall | 0.664 (Good) |
+
+Faithfulness of 1.0 means all answers are fully grounded in 
+retrieved source documents — critical for compliance use cases 
+where hallucination is unacceptable. Lower answer relevancy 
+reflects the system correctly saying "not in context" rather 
+than hallucinating an answer. Full evaluation pipeline in 
+`src/evaluation/ragas_eval.py`.
+
 **Current Limitations:**
 - Ingestion via API times out on Codespaces due to 60s gateway limit — 
   workaround is pre-building the index via terminal script
